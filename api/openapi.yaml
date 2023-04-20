@@ -1,0 +1,3840 @@
+openapi: 3.0.1
+info:
+  contact:
+    email: contact@lab5e.com
+    name: Lab5e AS
+    url: https://lab5e.com
+  description: "API for sessions, teams and API tokens"
+  title: The Span User API
+  version: "[version] [name]"
+servers:
+- url: https://api.lab5e.com/
+security:
+- APIToken: []
+  bearer: []
+tags:
+- name: DejavuService
+paths:
+  /dejavu/v1/eula:
+    get:
+      description: Retrieve the EULA for the service.
+      operationId: EndUserLicenseAgreement
+      parameters:
+      - in: query
+        name: format
+        schema:
+          default: FORMAT_UNSPECIFIED
+          enum:
+          - FORMAT_UNSPECIFIED
+          - FORMAT_HTML
+          - FORMAT_MARKDOWN
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndUserLicenseAgreementResponse'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      security: []
+      summary: EULA text
+      tags:
+      - signup
+  /dejavu/v1/ghprofile/{emailToken}/verify:
+    post:
+      description: |-
+        Final roundtrip - verify the email address and set a password for a
+        migrated GitHub profile. The request must include the token. This request
+        is initiated by the client after receiving a verification mail from the
+        system. The request will only contain the token from the link in the email
+        and the updated password. This request will fail if the password is set on
+        the profile. Once the password is set the server logs in the user and
+        returns a session object (aka JWT) to the client.
+      operationId: VerifyGithubProfile
+      parameters:
+      - in: path
+        name: emailToken
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyGithubProfileRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyGithubProfileResponse'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      security: []
+      summary: Verify GitHub profile
+      tags:
+      - signup
+      x-codegen-request-body-name: body
+  /dejavu/v1/ghprofile/{githubToken}:
+    get:
+      description: |-
+        First step: Retrive the (partial) GitHub profile for a migrated GitHub
+        profile. The request includes a token that points to the profile. If the
+        password is set for the profile the request will fail. This request is
+        initiated by the client after the GitHub login roundtrip.
+      operationId: GetGithubProfile
+      parameters:
+      - in: path
+        name: githubToken
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetGithubProfileResponse'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      security: []
+      summary: Retrieve GitHub profile
+      tags:
+      - signup
+    post:
+      description: |-
+        Second step - update the profile information for a migrated GitHub profile.
+        The request might return an error if the email address is in use. If the
+        request does not include a token the request will fail. This request
+        initiated by the client after GetGithubProfile is called and the profile is
+        updated.
+      operationId: UpdateGithubProfile
+      parameters:
+      - in: path
+        name: githubToken
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateGithubProfileRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateGithubProfileResponse'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      security: []
+      summary: Update GitHub profile
+      tags:
+      - signup
+      x-codegen-request-body-name: body
+  /dejavu/v1/login:
+    post:
+      description: |-
+        Sign in with user name (email), password and optionally a code from a MFA
+        token. This creates a new session for the user and the returned JWT token
+        must be used to access the service from now on.
+      operationId: Login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      security: []
+      summary: Sign in to the service
+      tags:
+      - session
+      x-codegen-request-body-name: body
+  /dejavu/v1/logout:
+    post:
+      description: Sign out and terminate session. This method will always succeed.
+      operationId: Logout
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogoutResponse'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      summary: Sign out
+      tags:
+      - session
+      x-codegen-request-body-name: body
+  /dejavu/v1/mfa/new:
+    post:
+      description: |-
+        MFA tokens are added in a two-step process. The client calls
+        NewMFA() which will create a new mfa key for the profile. The key
+        might be lost or the client might now own a working MFA device so
+        we won't attach the token to the profile until Verify is called
+        successfully.
+        A token can be added only once to a profile.
+      operationId: NewMFAToken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewMFATokenRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewMFATokenResponse'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      summary: Assign MFA token
+      tags:
+      - profile
+      x-codegen-request-body-name: body
+  /dejavu/v1/mfa/remove:
+    post:
+      description: |-
+        Remove the assigned MFA token on the profile. The request must include a
+        valid passcode generated by the token.
+      operationId: RemoveMFAToken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RemoveMFATokenRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemoveMFATokenResponse'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      summary: Remove MFA token
+      tags:
+      - profile
+      x-codegen-request-body-name: body
+  /dejavu/v1/mfa/verify:
+    post:
+      description: |-
+        Next the client calls VerifyNewMFA() with a code for the token to
+        verify that we have a working token. If the new token state is broken in
+        some way the old pending token will be left as is and overwritten the next
+        time a token is (attempted) added
+      operationId: VerifyNewMFAToken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyNewMFATokenRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyNewMFATokenResponse'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      summary: Verify MFA token
+      tags:
+      - profile
+      x-codegen-request-body-name: body
+  /dejavu/v1/orgs:
+    get:
+      description: |-
+        List the organisations you are a member of. The list does not include the
+        org members, just the orgs. Organisations can either be a personal org
+        which is your own personal playground where there are no other members or
+        they can be regular organisations where anyone invited can be a member.
+        Members of an organisation can be members of teams within the organisation
+        and have different roles in each team.
+      operationId: ListOrgs
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListOrgsResponse'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      summary: List organisations
+      tags:
+      - orgs
+    post:
+      description: |-
+        Create a new organisation. The currently logged in user will be added as a
+        member with owner privileges. owner of the new organisation.
+      operationId: CreateOrg
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrgRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organisation'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      summary: Create new organisation
+      tags:
+      - orgs
+      x-codegen-request-body-name: body
+  /dejavu/v1/orgs/invites:
+    post:
+      description: List pending invites for the signed-in user.
+      operationId: ListInvites
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListInvitesRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListInvitesResponse'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      summary: List invites
+      tags:
+      - orgs
+      x-codegen-request-body-name: body
+  /dejavu/v1/orgs/invites/{inviteId}:
+    patch:
+      description: |-
+        Handle invites. An invite can either be accepted or ignored. Ignored
+        invites are kept but can be hidden for the user.
+      operationId: HandleInvite
+      parameters:
+      - description: The invitie ID
+        in: path
+        name: inviteId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HandleInvite_request'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HandleInviteResponse'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      summary: Respond to invite
+      tags:
+      - orgs
+      x-codegen-request-body-name: body
+  /dejavu/v1/orgs/{orgId}:
+    delete:
+      description: |-
+        Delete an organisation. The organisation must be empty with no users except
+        the currently logged in user or the operation will fail.If there is one or
+        more collections inside the org the operation will fail.
+      operationId: DeleteOrg
+      parameters:
+      - in: path
+        name: orgId
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteOrgResponse'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      summary: Delete organisation
+      tags:
+      - orgs
+    get:
+      description: |-
+        Show detailed information about an org. This includes the member list which
+        consists of partially populated user objects. The org member list contains
+        all users that can be a member of the teams in the org. Invite new users to
+        the organisation to expand the teams. Members can either be (co-)owners of
+        an organisation or regular members. Regular members can only read the org
+        information and not modify it or the various team members. Team members can
+        have write access to the resources in a team without write access to the
+        org itself.
+      operationId: GetOrg
+      parameters:
+      - in: path
+        name: orgId
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organisation'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      summary: Organisation details
+      tags:
+      - orgs
+    patch:
+      description: |-
+        Update organisation. The user must be an owner of the organisation to
+        update it. The updated organisation is returned.
+      operationId: UpdateOrg
+      parameters:
+      - in: path
+        name: orgId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateOrg_request'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organisation'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      summary: Update organisation
+      tags:
+      - orgs
+      x-codegen-request-body-name: body
+  /dejavu/v1/orgs/{orgId}/invites:
+    post:
+      description: |-
+        Invite members via email addresses to the organisation. If the email
+        address belongs to a registered user a notification email will be sent. If
+        the email address does not belong to a registered user an invitation email
+        will be sent to the user.
+      operationId: CreateOrgInvites
+      parameters:
+      - in: path
+        name: orgId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrgInvites_request'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateOrgInvitesResponse'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      summary: Invite members into org
+      tags:
+      - orgs
+      x-codegen-request-body-name: body
+  /dejavu/v1/orgs/{orgId}/members:
+    get:
+      description: |-
+        List the members and invites for an organisation. The members might be in
+        multiple states; joined, invited or not registered depending on if they've
+        aleady joined, received the invite and not yet joined or if they have
+        received an invite but haven't registered.
+      operationId: ListOrgMembers
+      parameters:
+      - in: path
+        name: orgId
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListOrgMembersResponse'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      summary: List members of organisation
+      tags:
+      - orgs
+  /dejavu/v1/orgs/{orgId}/members/{memberId}:
+    delete:
+      description: |-
+        Remove a member from the organisation. The member will be removed from the
+        organisation and from any teams the member has access to.
+      operationId: RemoveOrgMember
+      parameters:
+      - in: path
+        name: orgId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: memberId
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrgMember'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      summary: Remove member from organisation
+      tags:
+      - orgs
+    patch:
+      description: |-
+        Update the role for a member of the organisation. The member's role in any
+        team is not affected by the change.
+      operationId: UpdateOrgMemberRole
+      parameters:
+      - in: path
+        name: orgId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: memberId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateOrgMemberRole_request'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrgMember'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      summary: Update org member role
+      tags:
+      - orgs
+      x-codegen-request-body-name: body
+  /dejavu/v1/orgs/{orgId}/teams:
+    get:
+      description: |-
+        List all the teams in an org. This returns a list of the teams defined for
+        an organisation.
+      operationId: ListOrgTeams
+      parameters:
+      - in: path
+        name: orgId
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListOrgTeamsResponse'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      summary: List teams in org
+      tags:
+      - orgs
+    post:
+      description: |-
+        Create a team in an organisation. The new team will have a single owner -
+        the user that created it. The created team is returned.
+      operationId: CreateOrgTeam
+      parameters:
+      - in: path
+        name: orgId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrgTeam_request'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrgTeam'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      summary: Create a team
+      tags:
+      - orgs
+      x-codegen-request-body-name: body
+  /dejavu/v1/orgs/{orgId}/teams/apitokens:
+    get:
+      description: |-
+        This returns a list of API tokens for the teams in the organisation. API
+        tokens can be used to interact with the team's resources.
+      operationId: ListAPITokens
+      parameters:
+      - in: path
+        name: orgId
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: teamId
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListAPITokenResponse'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      summary: List API tokens for teams in organisation
+      tags:
+      - orgs
+  /dejavu/v1/orgs/{orgId}/teams/{teamId}:
+    delete:
+      description: |-
+        Delete a team from an organisation. The team must be empty and not linked
+        to any collections before it can be removed.
+      operationId: DeleteOrgTeam
+      parameters:
+      - description: Organisation ID
+        in: path
+        name: orgId
+        required: true
+        schema:
+          type: string
+      - description: Team ID
+        in: path
+        name: teamId
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteOrgTeamResponse'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      summary: Delete a team
+      tags:
+      - orgs
+    get:
+      description: Retrieve a single team for an organisation. This includes the team
+        members.
+      operationId: GetOrgTeam
+      parameters:
+      - in: path
+        name: orgId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: teamId
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrgTeam'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      summary: Retrieve team information
+      tags:
+      - orgs
+    patch:
+      description: |-
+        Update a team with new information. If the team is moved from one
+        organisation to another you must have owner permissions on both
+        organisations. Other members in the team will not be carried over to the
+        new organisation.
+      operationId: UpdateOrgTeam
+      parameters:
+      - description: Organisation ID
+        in: path
+        name: orgId
+        required: true
+        schema:
+          type: string
+      - description: Team ID
+        in: path
+        name: teamId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateOrgTeam_request'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrgTeam'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      summary: Update a team
+      tags:
+      - orgs
+      x-codegen-request-body-name: body
+  /dejavu/v1/orgs/{orgId}/teams/{teamId}/apitokens:
+    post:
+      description: Add an API token to a team in the organisation.
+      operationId: AddAPIToken
+      parameters:
+      - in: path
+        name: orgId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: teamId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddAPIToken_request'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIToken'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      summary: Add API token to team
+      tags:
+      - orgs
+      x-codegen-request-body-name: body
+  /dejavu/v1/orgs/{orgId}/teams/{teamId}/apitokens/{tokenId}:
+    delete:
+      description: |-
+        Remove an API token from a team. The returned list is the updated list of
+        tokens
+      operationId: RemoveAPIToken
+      parameters:
+      - in: path
+        name: orgId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: teamId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: tokenId
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemoveAPITokenResponse'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      summary: Remove API token from team
+      tags:
+      - orgs
+    get:
+      description: Retrieve an API token.
+      operationId: GetAPIToken
+      parameters:
+      - in: path
+        name: orgId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: teamId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: tokenId
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIToken'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      summary: Retrieve API token
+      tags:
+      - orgs
+    patch:
+      description: Update an API token.
+      operationId: UpdateAPIToken
+      parameters:
+      - in: path
+        name: orgId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: teamId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: tokenId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAPIToken_request'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIToken'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      summary: Update API token
+      tags:
+      - orgs
+      x-codegen-request-body-name: body
+  /dejavu/v1/orgs/{orgId}/teams/{teamId}/members:
+    patch:
+      description: |-
+        Change the role of a team member. The returned team contains the updated
+        team information
+      operationId: UpdateTeamMember
+      parameters:
+      - in: path
+        name: orgId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: teamId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamMemberRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrgTeam'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      summary: Change membership role for a team member
+      tags:
+      - orgs
+      x-codegen-request-body-name: body
+    post:
+      description: Add a new team member to a team within an org.
+      operationId: AddTeamMember
+      parameters:
+      - in: path
+        name: orgId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: teamId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamMemberRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrgTeam'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      summary: Add a team member
+      tags:
+      - orgs
+      x-codegen-request-body-name: body
+  /dejavu/v1/orgs/{orgId}/teams/{teamId}/members/{memberId}:
+    delete:
+      description: |-
+        Remove a member from a team in the organisation. The team membership is
+        removed but the user will still remain a member of the organisation.
+      operationId: RemoveTeamMember
+      parameters:
+      - in: path
+        name: orgId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: teamId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: memberId
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrgTeam'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      summary: Remove a member from a team
+      tags:
+      - orgs
+  /dejavu/v1/phone/verify:
+    post:
+      description: |-
+        This endpoint is called twice; once to generate an SMS with a verification
+        code and a 2nd time with the code sent via SMS to the phone number.
+      operationId: VerifyPhone
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyPhoneRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyPhoneResponse'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      summary: Verify phone number
+      tags:
+      - profile
+      x-codegen-request-body-name: body
+  /dejavu/v1/profile:
+    get:
+      description: Retrieve the profile for the signed in user.
+      operationId: Profile
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      summary: Retrieve profile
+      tags:
+      - profile
+    post:
+      description: Update the signed in user's profile.
+      operationId: UpdateProfile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+        description: |-
+          Update the user profile. The existing password is required in all cases. If
+          an MFA token is assigned to the account it is required to update the profile
+          information.
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateProfileResponse'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      summary: Update profile
+      tags:
+      - profile
+      x-codegen-request-body-name: body
+  /dejavu/v1/profile/password:
+    post:
+      description: |-
+        Update the user's password. If a MFA token is assigned to the account a
+        valid passcode must be submitted.
+      operationId: UpdatePassword
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePasswordRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdatePasswordResponse'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      summary: Change password
+      tags:
+      - profile
+      x-codegen-request-body-name: body
+  /dejavu/v1/recover:
+    post:
+      description: |-
+        RecoverPassword is called both to send a password reset mail and to reset
+        the password. An email will be sent with the appropriate link to the
+        recovery page. The link contains two parameters; recover_token=token and
+        mfa=1/0. If the MFA flag is set the user must supply a passcode from the
+        MFA token to recover the password.
+      operationId: RecoverPassword
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecoverPasswordRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecoverPasswordResponse'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      security: []
+      summary: Recover/reset password
+      tags:
+      - session
+      x-codegen-request-body-name: body
+  /dejavu/v1/sessions:
+    post:
+      description: |-
+        List past sessions for the user. This is useful to see if anything fishy
+        have happened.
+      operationId: ListSessions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListSessionsRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListSessionsResponse'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      summary: List sessions
+      tags:
+      - session
+      x-codegen-request-body-name: body
+  /dejavu/v1/signup:
+    post:
+      description: |-
+        Start a new signup process by signing up an user. This will generate a
+        verification mail that is sent to the submitted email address. The
+        verification mail points to a verification page where the new user can set
+        his/hers password and complete the signup.
+      operationId: Signup
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignupRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignupResponse'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      summary: Sign up new user
+      tags:
+      - signup
+      x-codegen-request-body-name: body
+  /dejavu/v1/verifyemail:
+    post:
+      description: |-
+        Verify email address submitted at signup. The token submitted must match
+        the token generated by the signup step. When a password is set the user is
+        created and is logged in to the service.
+      operationId: VerifyEmail
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyEmailRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyEmailResponse'
+          description: A successful response.
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: It's created.
+        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: The request has an error.
+        "401":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: You can't touch this
+        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Couldn't find the resource.
+        "409":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: There's a resource conflict here.
+        "500":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: I'm sorry. We are broken
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: An unexpected error response.
+      security: []
+      summary: Verify email
+      tags:
+      - signup
+      x-codegen-request-body-name: body
+components:
+  schemas:
+    APIToken:
+      description: API Tokens are used for
+      example:
+        lastUse: lastUse
+        tokenId: tokenId
+        resource: resource
+        teamId: teamId
+        name: name
+        uses: uses
+        write: true
+        token: token
+      properties:
+        tokenId:
+          type: string
+        teamId:
+          type: string
+        resource:
+          type: string
+        write:
+          type: boolean
+        token:
+          type: string
+        name:
+          type: string
+        lastUse:
+          format: int64
+          type: string
+        uses:
+          format: int64
+          type: string
+      title: APIToken
+      type: object
+    Any:
+      additionalProperties:
+        type: object
+      properties:
+        '@type':
+          type: string
+      type: object
+    CreateOrgInvitesResponse:
+      example:
+        invites: 0
+      properties:
+        invites:
+          format: int32
+          type: integer
+      type: object
+    CreateOrgRequest:
+      example:
+        name: name
+      properties:
+        name:
+          type: string
+      type: object
+    CreateTestUserResponse:
+      properties:
+        id:
+          type: string
+      type: object
+    DeleteOrgResponse:
+      type: object
+    DeleteOrgTeamResponse:
+      type: object
+    EndUserLicenseAgreementResponse:
+      example:
+        text: text
+        version: 0
+      properties:
+        text:
+          type: string
+        version:
+          format: int32
+          type: integer
+      type: object
+    Format:
+      default: FORMAT_UNSPECIFIED
+      enum:
+      - FORMAT_UNSPECIFIED
+      - FORMAT_HTML
+      - FORMAT_MARKDOWN
+      type: string
+    GetGithubProfileResponse:
+      example:
+        address: address
+        phone: phone
+        name: name
+        email: email
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        address:
+          type: string
+        phone:
+          type: string
+      title: The github migration response; includes the partial profile
+      type: object
+    GetSigningKeyResponse:
+      properties:
+        publicKey:
+          format: byte
+          pattern: "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$"
+          title: "The public part of the ED22519 signing key, PEM encoded"
+          type: string
+      type: object
+    HandleInviteResponse:
+      type: object
+    Invite:
+      example:
+        inviterEmail: inviterEmail
+        orgName: orgName
+        inviteId: inviteId
+        created: created
+        inviterName: inviterName
+      properties:
+        inviteId:
+          type: string
+        inviterName:
+          title: Sender's name
+          type: string
+        inviterEmail:
+          title: Email for sender
+          type: string
+        orgName:
+          title: Name of team
+          type: string
+        created:
+          format: int64
+          title: Time in ms since epoch
+          type: string
+      type: object
+    ListAPITokenResponse:
+      example:
+        tokens:
+        - lastUse: lastUse
+          tokenId: tokenId
+          resource: resource
+          teamId: teamId
+          name: name
+          uses: uses
+          write: true
+          token: token
+        - lastUse: lastUse
+          tokenId: tokenId
+          resource: resource
+          teamId: teamId
+          name: name
+          uses: uses
+          write: true
+          token: token
+      properties:
+        tokens:
+          items:
+            $ref: '#/components/schemas/APIToken'
+          type: array
+      type: object
+    ListInvitesRequest:
+      type: object
+    ListInvitesResponse:
+      example:
+        invites:
+        - inviterEmail: inviterEmail
+          orgName: orgName
+          inviteId: inviteId
+          created: created
+          inviterName: inviterName
+        - inviterEmail: inviterEmail
+          orgName: orgName
+          inviteId: inviteId
+          created: created
+          inviterName: inviterName
+      properties:
+        invites:
+          items:
+            $ref: '#/components/schemas/Invite'
+          type: array
+      type: object
+    ListOrgMembersResponse:
+      example:
+        members:
+        - orgRole: null
+          created: created
+          name: name
+          userId: userId
+          orgId: orgId
+          email: email
+          memberId: memberId
+          status: null
+        - orgRole: null
+          created: created
+          name: name
+          userId: userId
+          orgId: orgId
+          email: email
+          memberId: memberId
+          status: null
+      properties:
+        members:
+          items:
+            $ref: '#/components/schemas/OrgMember'
+          type: array
+      type: object
+    ListOrgTeamsResponse:
+      example:
+        teams:
+        - created: created
+          teamId: teamId
+          members:
+          - name: name
+            teamRole: null
+            email: email
+            memberId: memberId
+          - name: name
+            teamRole: null
+            email: email
+            memberId: memberId
+          name: name
+        - created: created
+          teamId: teamId
+          members:
+          - name: name
+            teamRole: null
+            email: email
+            memberId: memberId
+          - name: name
+            teamRole: null
+            email: email
+            memberId: memberId
+          name: name
+      properties:
+        teams:
+          items:
+            $ref: '#/components/schemas/OrgTeam'
+          type: array
+      type: object
+    ListOrgsResponse:
+      example:
+        orgs:
+        - organisationId: organisationId
+          stats:
+            apiTokens: 0
+            teams: 1
+            collections: 6
+            members: 5
+            invites: 5
+          created: created
+          name: name
+          personal: true
+        - organisationId: organisationId
+          stats:
+            apiTokens: 0
+            teams: 1
+            collections: 6
+            members: 5
+            invites: 5
+          created: created
+          name: name
+          personal: true
+      properties:
+        orgs:
+          items:
+            $ref: '#/components/schemas/Organisation'
+          type: array
+      type: object
+    ListSessionsRequest:
+      type: object
+    ListSessionsResponse:
+      example:
+        sessions:
+        - currentSession: true
+          ip: ip
+          browser: browser
+          start: start
+          active: true
+          end: end
+          location: location
+          device: null
+          platform: platform
+        - currentSession: true
+          ip: ip
+          browser: browser
+          start: start
+          active: true
+          end: end
+          location: location
+          device: null
+          platform: platform
+      properties:
+        sessions:
+          items:
+            $ref: '#/components/schemas/SessionInfo'
+          type: array
+      type: object
+    LoginRequest:
+      example:
+        password: password
+        email: email
+        passcode: passcode
+      properties:
+        email:
+          type: string
+        password:
+          title: This is the password
+          type: string
+        passcode:
+          title: (optional) passcode if MFA token is required
+          type: string
+      type: object
+    LoginResponse:
+      example:
+        result: null
+        credentials: credentials
+      properties:
+        result:
+          $ref: '#/components/schemas/LoginResponse.Result'
+        credentials:
+          type: string
+      type: object
+    LoginResponse.Result:
+      default: RESULT_UNSPECIFIED
+      enum:
+      - RESULT_UNSPECIFIED
+      - RESULT_SUCCESS
+      - RESULT_INCOMPLETE
+      - RESULT_INVALID
+      type: string
+    LogoutRequest:
+      type: object
+    LogoutResponse:
+      title: Empty response when logging out
+      type: object
+    MemberStatus:
+      default: unspecified
+      enum:
+      - unspecified
+      - joined
+      - invited
+      - notregistered
+      title: |-
+        - unspecified: Indeterminate state
+         - joined: Joined team
+         - invited: Invited but not joined
+         - notregistered: Invited but not registered
+      type: string
+    NewMFATokenRequest:
+      type: object
+    NewMFATokenResponse:
+      example:
+        qrCode: qrCode
+        secret: secret
+      properties:
+        secret:
+          type: string
+        qrCode:
+          format: byte
+          pattern: "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$"
+          type: string
+      type: object
+    OrgMember:
+      description: Member in an organisation.
+      example:
+        orgRole: null
+        created: created
+        name: name
+        userId: userId
+        orgId: orgId
+        email: email
+        memberId: memberId
+        status: null
+      properties:
+        memberId:
+          type: string
+        orgId:
+          type: string
+        userId:
+          type: string
+        orgRole:
+          $ref: '#/components/schemas/OrgRole'
+        created:
+          format: int64
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        status:
+          $ref: '#/components/schemas/MemberStatus'
+      title: OrgMember
+      type: object
+    OrgRole:
+      default: ORG_ROLE_UNSPECIFIED
+      enum:
+      - ORG_ROLE_UNSPECIFIED
+      - ORG_ROLE_OWNER
+      - ORG_ROLE_MEMBER
+      title: |-
+        - ORG_ROLE_OWNER: The owner of the org
+         - ORG_ROLE_MEMBER: Regular member
+      type: string
+    OrgStats:
+      description: Basic statistics on org
+      example:
+        apiTokens: 0
+        teams: 1
+        collections: 6
+        members: 5
+        invites: 5
+      properties:
+        apiTokens:
+          format: int32
+          type: integer
+        collections:
+          format: int32
+          type: integer
+        teams:
+          format: int32
+          type: integer
+        members:
+          format: int32
+          type: integer
+        invites:
+          format: int32
+          type: integer
+      title: Organisation statistics
+      type: object
+    OrgTeam:
+      description: |-
+        Team in organisation. Teams are subgroups of member in the organisations, a
+        team could be "dev team", "test test" or "prod team" depending on how you
+        organise your work. Teams (and consequently all the resources owned by the
+        team) can be moved from one organisation to another
+      example:
+        created: created
+        teamId: teamId
+        members:
+        - name: name
+          teamRole: null
+          email: email
+          memberId: memberId
+        - name: name
+          teamRole: null
+          email: email
+          memberId: memberId
+        name: name
+      properties:
+        teamId:
+          title: The team ID
+          type: string
+        name:
+          title: Name of the team
+          type: string
+        created:
+          format: int64
+          title: Creating time for team. Set automatically
+          type: string
+        members:
+          description: Members of team.
+          items:
+            $ref: '#/components/schemas/OrgTeamMember'
+          type: array
+      title: OrgTeam
+      type: object
+    OrgTeamMember:
+      description: |-
+        A team member. The team members are all members of the organisation and the
+        name and email fields are for informational purposes only.
+      example:
+        name: name
+        teamRole: null
+        email: email
+        memberId: memberId
+      properties:
+        memberId:
+          title: The member ID (from org member)
+          type: string
+        teamRole:
+          $ref: '#/components/schemas/OrgRole'
+        name:
+          title: "Informational: Name of team member"
+          type: string
+        email:
+          title: "Informational: Email of team member"
+          type: string
+      title: OrgTeamMember
+      type: object
+    Organisation:
+      description: |-
+        An organisation is typically your business or a bigger team working on a
+        larger project with related activities.
+      example:
+        organisationId: organisationId
+        stats:
+          apiTokens: 0
+          teams: 1
+          collections: 6
+          members: 5
+          invites: 5
+        created: created
+        name: name
+        personal: true
+      properties:
+        organisationId:
+          title: The organisation ID
+          type: string
+        name:
+          title: Name of organisation
+          type: string
+        created:
+          format: int64
+          title: When the org was created
+          type: string
+        personal:
+          title: The personal flag is set if the org is a personal org;
+          type: boolean
+        stats:
+          $ref: '#/components/schemas/OrgStats'
+      title: Organisation
+      type: object
+    ProfileResponse:
+      example:
+        user:
+          verifiedPhone: true
+          address: address
+          phone: phone
+          lastEulaAccepted: 0
+          name: name
+          hasMfa: true
+          defaultTeamId: defaultTeamId
+          email: email
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+      type: object
+    RecoverPasswordRequest:
+      example:
+        recoverToken: recoverToken
+        newPassword: newPassword
+        email: email
+        passcode: passcode
+      properties:
+        email:
+          title: Set when recovering password
+          type: string
+        recoverToken:
+          title: "Recover phase 2: From email link"
+          type: string
+        passcode:
+          title: "Recover phase 2: User-supplied"
+          type: string
+        newPassword:
+          title: "Recover phase 2: New password"
+          type: string
+      type: object
+    RecoverPasswordResponse:
+      example:
+        credentials: credentials
+      properties:
+        credentials:
+          title: If successful the session is set
+          type: string
+      type: object
+    RemoveAPITokenResponse:
+      type: object
+    RemoveMFATokenRequest:
+      example:
+        passcode: passcode
+      properties:
+        passcode:
+          type: string
+      type: object
+    RemoveMFATokenResponse:
+      example:
+        user:
+          verifiedPhone: true
+          address: address
+          phone: phone
+          lastEulaAccepted: 0
+          name: name
+          hasMfa: true
+          defaultTeamId: defaultTeamId
+          email: email
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+      type: object
+    SessionInfo:
+      example:
+        currentSession: true
+        ip: ip
+        browser: browser
+        start: start
+        active: true
+        end: end
+        location: location
+        device: null
+        platform: platform
+      properties:
+        start:
+          format: int64
+          title: "Start time, in milliseconds"
+          type: string
+        end:
+          format: int64
+          title: "End time, in milliseconds"
+          type: string
+        ip:
+          title: IP address of client
+          type: string
+        location:
+          title: String indicating location of client
+          type: string
+        platform:
+          title: Platform (macOS/Windows/Linux)
+          type: string
+        browser:
+          title: "Browser (Chrome, Safari, Edge, Mozilla, Opera)"
+          type: string
+        device:
+          $ref: '#/components/schemas/SessionInfo.Type'
+        currentSession:
+          title: The current session
+          type: boolean
+        active:
+          title: Active true/false. Active sessions can be terminated
+          type: boolean
+      type: object
+    SessionInfo.Type:
+      default: TYPE_UNSPECIFIED
+      enum:
+      - TYPE_UNSPECIFIED
+      - TYPE_DESKTOP
+      - TYPE_MOBILE
+      - TYPE_TABLET
+      - TYPE_BOT
+      type: string
+    SignupRequest:
+      example:
+        acceptedEulaVersion: 0
+        address: address
+        phone: phone
+        name: name
+        email: email
+      properties:
+        email:
+          title: Email is a required field and must be a valid email address
+          type: string
+        name:
+          description: Name is a required field.
+          type: string
+        address:
+          description: Address is a free-form field and may be left blank.
+          type: string
+        phone:
+          title: "Phone number must be in E164 format. Spaces, dashes and"
+          type: string
+        acceptedEulaVersion:
+          description: |-
+            parentheses are ignored.
+
+            This version must be set to the current EULA version
+          format: int32
+          type: integer
+      type: object
+    SignupResponse:
+      example:
+        result: null
+      properties:
+        result:
+          $ref: '#/components/schemas/SignupResponse.Result'
+      type: object
+    SignupResponse.Result:
+      default: RESULT_UNSPECIFIED
+      enum:
+      - RESULT_UNSPECIFIED
+      - RESULT_SUCCESS
+      title: "- RESULT_SUCCESS: Successful signup step 1"
+      type: string
+    Status:
+      properties:
+        code:
+          format: int32
+          type: integer
+        message:
+          type: string
+        details:
+          items:
+            $ref: '#/components/schemas/Any'
+          type: array
+      type: object
+    UpdateGithubProfileResponse:
+      description: Response when updating the profile. Empty
+      title: UpdateGithubProfileResponse
+      type: object
+    UpdatePasswordRequest:
+      example:
+        existingPassword: existingPassword
+        newPassword: newPassword
+        passcode: passcode
+      properties:
+        existingPassword:
+          type: string
+        newPassword:
+          type: string
+        passcode:
+          type: string
+      type: object
+    UpdatePasswordResponse:
+      example:
+        user:
+          verifiedPhone: true
+          address: address
+          phone: phone
+          lastEulaAccepted: 0
+          name: name
+          hasMfa: true
+          defaultTeamId: defaultTeamId
+          email: email
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+      type: object
+    UpdateProfileRequest:
+      description: |-
+        Update the user profile. The existing password is required in all cases. If
+        an MFA token is assigned to the account it is required to update the profile
+        information.
+      example:
+        existingPassword: existingPassword
+        user:
+          verifiedPhone: true
+          address: address
+          phone: phone
+          lastEulaAccepted: 0
+          name: name
+          hasMfa: true
+          defaultTeamId: defaultTeamId
+          email: email
+        passcode: passcode
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        existingPassword:
+          type: string
+        passcode:
+          type: string
+      title: UpdateProfileRequest
+      type: object
+    UpdateProfileResponse:
+      example:
+        user:
+          verifiedPhone: true
+          address: address
+          phone: phone
+          lastEulaAccepted: 0
+          name: name
+          hasMfa: true
+          defaultTeamId: defaultTeamId
+          email: email
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+      type: object
+    User:
+      example:
+        verifiedPhone: true
+        address: address
+        phone: phone
+        lastEulaAccepted: 0
+        name: name
+        hasMfa: true
+        defaultTeamId: defaultTeamId
+        email: email
+      properties:
+        email:
+          type: string
+        name:
+          type: string
+        address:
+          type: string
+        phone:
+          type: string
+        hasMfa:
+          type: boolean
+        lastEulaAccepted:
+          format: int32
+          type: integer
+        verifiedPhone:
+          type: boolean
+        defaultTeamId:
+          type: string
+      type: object
+    VerifyEmailRequest:
+      example:
+        password: password
+        token: token
+      properties:
+        token:
+          type: string
+        password:
+          type: string
+      type: object
+    VerifyEmailResponse:
+      description: |-
+        The response to verified emails concludes the signup process and credentials
+        for a new session is returned.
+      example:
+        result: null
+        credentials: credentials
+      properties:
+        result:
+          $ref: '#/components/schemas/VerifyEmailResponse.Result'
+        credentials:
+          type: string
+      title: VerifyEmailResponse
+      type: object
+    VerifyEmailResponse.Result:
+      default: RESULT_UNSPECIFIED
+      enum:
+      - RESULT_UNSPECIFIED
+      - RESULT_SUCCESS
+      - RESULT_ERROR
+      title: |-
+        - RESULT_SUCCESS: Successful signup step 2
+         - RESULT_ERROR: Error (token is invalid, missing or otherwise)
+      type: string
+    VerifyGithubProfileResponse:
+      description: Response from server. The auth token is an authentication token
+      example:
+        credentials: credentials
+      properties:
+        credentials:
+          type: string
+      title: VerifyGithubProfileResponse
+      type: object
+    VerifyNewMFATokenRequest:
+      example:
+        passcode: passcode
+      properties:
+        passcode:
+          type: string
+      type: object
+    VerifyNewMFATokenResponse:
+      example:
+        user:
+          verifiedPhone: true
+          address: address
+          phone: phone
+          lastEulaAccepted: 0
+          name: name
+          hasMfa: true
+          defaultTeamId: defaultTeamId
+          email: email
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+      type: object
+    VerifyPhoneRequest:
+      example:
+        code: code
+      properties:
+        code:
+          title: "phase 1: empty, phase 2: supply code, verify sent code matches"
+          type: string
+      type: object
+    VerifyPhoneResponse:
+      example:
+        user:
+          verifiedPhone: true
+          address: address
+          phone: phone
+          lastEulaAccepted: 0
+          name: name
+          hasMfa: true
+          defaultTeamId: defaultTeamId
+          email: email
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+      type: object
+    VerifyGithubProfileRequest:
+      description: Request sent from the client when the verification link is received
+      example:
+        password: password
+      properties:
+        password:
+          type: string
+      title: VerifyGithubProfileRequest
+      type: object
+    UpdateGithubProfileRequest:
+      description: |-
+        Request from client when profile is updated. Token is forwarded to the client
+        via redirects on GH auth.
+      example:
+        eulaAccepted: true
+        address: address
+        phone: phone
+        name: name
+        eulaVersion: 0
+        email: email
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        address:
+          type: string
+        phone:
+          type: string
+        eulaAccepted:
+          type: boolean
+        eulaVersion:
+          format: int32
+          type: integer
+      title: UpdateGithubProfileRequest
+      type: object
+    HandleInvite_request:
+      properties:
+        accepted:
+          title: Set to true to accept the invite
+          type: boolean
+      type: object
+    UpdateOrg_request:
+      properties:
+        name:
+          type: string
+      type: object
+    CreateOrgInvites_request:
+      properties:
+        emails:
+          items:
+            type: string
+          type: array
+      type: object
+    UpdateOrgMemberRole_request:
+      properties:
+        role:
+          $ref: '#/components/schemas/OrgRole'
+      type: object
+    CreateOrgTeam_request:
+      properties:
+        teamName:
+          type: string
+      type: object
+    UpdateOrgTeam_request:
+      properties:
+        name:
+          title: New name of team
+          type: string
+        newOrgId:
+          title: If left blank the organisation ID is not changed
+          type: string
+      type: object
+    AddAPIToken_request:
+      properties:
+        resource:
+          type: string
+        name:
+          type: string
+        write:
+          type: boolean
+      type: object
+    UpdateAPIToken_request:
+      properties:
+        resource:
+          type: string
+        write:
+          type: boolean
+        name:
+          type: string
+        newTeamId:
+          type: string
+      type: object
+    TeamMemberRequest:
+      description: A request that mutates the member list
+      example:
+        role: null
+        memberId: memberId
+      properties:
+        memberId:
+          type: string
+        role:
+          $ref: '#/components/schemas/OrgRole'
+      title: TeamMemberRequest
+      type: object
+  securitySchemes:
+    APIToken:
+      description: API token that must be included in the headers unless you are logged
+        in
+      in: header
+      name: X-API-Token
+      type: apiKey
+    bearer:
+      description: "JWT Authentication token, prefixed by Bearer: Bearer <token>"
+      in: header
+      name: Authorization
+      type: apiKey
+x-original-swagger-version: "2.0"
